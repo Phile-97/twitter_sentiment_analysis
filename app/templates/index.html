@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Twitter Sentiment Analysis{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        background-image: url('/static/icons/twitter_back.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    .vertical-center {
+         min-height: 100%;/*  Fallback for browsers do NOT support vh unit */
+        min-height: 100vh; /* These two lines are counted as one :-)       */
+
+        display: flex;
+        align-items: center;
+        margin-left: 10%;
+    }
+</style>
+
+<div class="wrapper">
+
+    <!-- header -->
+    {% include 'header.html' %}
+
+    <div class="content-wrap">
+        <div class="container vertical-center">
+            <div class="row-md-auto p-2">
+                <div class="col-md-auto">
+                    <div class="row-md-auto">
+                        <h1 class="text-white mb-2 font-weight-bold">Twitter Sentiment Analysis</h1>
+                        <h6 class="text-white">Search and Analysis of tweets based on keywords, location and date</h6>
+                        <img src="/static/icons/sentiment.png" height="250">
+                    </div>
+                    <div class="row-md-auto">
+                        <form method="GET" action="/analysis">
+                            <div class="col">
+                                <div class="row my-3">
+                                    <div class="col">
+                                        <label for="location" class="text-white">Enter Keywords: </label>
+                                        <input list="hashtag_list" id="hashtags" autocomplete="off" oninput="search(this.id, this.list)" onchange="add_tag(this.value, this.list)" class="form-control border border-white rounded-pill bg-transparent text-white" type="search" placeholder='Keywords'>
+                                        <datalist id="hashtag_list"></datalist>
+                                        <input type="hidden" id="tags" name="tags">
+                                    </div>
+                                </div>
+                                <div class="row my-3">
+                                    <div class="col">
+                                        <label for="location" class="text-white">Location: </label>
+                                        <input list="location_list" name="location" id="location" autocomplete="off" oninput="search(this.id, this.list)" class="form-control border border-white bg-transparent text-white" type="search" placeholder='Location' value="India" required>
+                                        <datalist id="location_list"></datalist>
+                                    </div>
+                                    <div class="col">
+                                        <label for="from" class="text-white">From: </label>
+                                        <input type="date" class="form-control text-white bg-transparent border border-white" name="from" id="from" min='2020-01-01' max='2022-01-01' value="2020-01-01">
+                                    </div>
+                                    <div class="col">
+                                        <label for="to" class="text-white">To: </label>
+                                        <input type="date" class="form-control text-white bg-transparent border border-white" name="to" id="to" min='2020-01-01' max='2022-01-01' value="2021-03-01">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="keywords" class="text-white">Tags: </label>
+                                        <div class="p-2 border border-white" id="keywords"></div>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center my-3">
+                                    <button type="submit" class="btn btn-secondary" id="submit">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer -->
+    {% include 'footer.html' %}
+</div>
+
+{% endblock %}
+

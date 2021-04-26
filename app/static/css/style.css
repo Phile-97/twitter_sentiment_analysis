@@ -1,0 +1,33 @@
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table, th, td {
+    border: 1px solid black;
+    padding: 5px;
+  }
+
+dl {
+    border: 1px solid black;            
+    padding: 5px;
+}
+
+.btn {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+.card-text {
+    font-weight: bold;
+}

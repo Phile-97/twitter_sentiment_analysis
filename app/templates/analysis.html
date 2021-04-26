@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<div class="wrapper">
+
+    <!-- header -->
+    {% include "header.html" %}
+
+    <div class="content-wrap p-2 bg-dark bg-gradient">
+        <input class="float-right mx-3 my-3" type="image" src="/static/icons/home.jpg" width="50px" onclick="window.location.href='/'">
+
+        <!-- counts -->
+        <div class="container-fluid p-5">
+            <div class="card-deck justify-content-center">
+                <div class="card text-white bg-secondary mb-3 h-100 shadow-lg" style="max-width: 20rem;">
+                    <div class="card-body p-4">
+                        {% if meta is defined %}
+                            <p class="card-text">Tags: {{ meta['tags'] }}</p>
+                            <p class="card-text">Location: {{ meta['location'] }}</p>
+                            <p class="card-text">From: {{ meta['from'] }}</p>
+                            <p class="card-text">To: {{ meta['to'] }}</p>
+                            <p class="card-text">Total tweets: {{ counts['total'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card text-white bg-success mb-3 h-100 shadow-lg" style="max-width: 20rem;">
+                    <div class="card-header form-inline">
+                        <img class="mr-1" src="/static/icons/pos.png" style="width: 45px;">
+                        <h4>Positive Tweets</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-center">{{ counts['pos'] }} tweets</h4>
+                    </div>
+                    <div class="card-footer">
+                        <p class="float-left font-weight-bold">View tweets</p>
+                        <input class="float-right" type="image" src="/static/icons/down.png" width="40px" onclick="show('positive'); return false">
+                    </div>
+                </div>
+                <div class="card text-white bg-warning mb-3 h-100 shadow-lg" style="max-width: 20rem;">
+                    <div class="card-header form-inline">
+                        <img class="mr-1" src="/static/icons/neu.png" style="width: 50px;">
+                        <h4>Neutral Tweets</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-center">{{ counts['neu'] }} tweets</h4>
+                    </div>
+                    <div class="card-footer">
+                        <p class="float-left font-weight-bold">View tweets</p>
+                        <input class="float-right" type="image" src="/static/icons/down.png" width="40px" onclick="show('neutral'); return false">
+                    </div>
+                </div>
+                <div class="card text-white bg-danger mb-3 h-100 shadow-lg" style="max-width: 20rem;">
+                    <div class="card-header form-inline">
+                        <img class="mr-1" src="/static/icons/neg.png" style="width: 50px;">
+                        <h4>Negative Tweets</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-center">{{ counts['neg'] }} tweets</h4>
+                    </div>
+                    <div class="card-footer">
+                        <p class="float-left font-weight-bold">View tweets</p>
+                        <input class="float-right" type="image" src="/static/icons/down.png" width="40px" onclick="show('negative'); return false">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- charts -->
+        {% if tweets|length > 0 %}
+            <div class=" container-fluid md-5 form-inline justify-content-center">
+                <div class="card mx-5 my-auto bg-light">
+                    <div class="card-header">
+                        <h4>pie chart</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <canvas class="mr-5" id='pie_chart' width="700px" height="600px"></canvas>
+                    </div>
+                </div>
+                <div class="card my-auto bg-light">
+                    <div class="card-header">
+                        <h4>bar graph</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <canvas id='bar_chart' width="400px" height="700px"></canvas>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- tweets -->
+        <div id="tweets_box" class="container my-5">
+            <div class="form-inline justify-content-center">
+                <h1 class="text-white">Sample Tweets</h1>
+                <button class="btn btn-link font-weight-bold float-right" onclick="generate_pdf(); return false">pdf</button>
+            </div>
+            {% if tweets is defined %}
+                {% if tweets|length > 0 %}
+                    {% for ele in tweets %}
+                    {% set date = ele[2].split()[0] %}
+                        {% if ele[5] == 'positive' %}
+                            <div class="card my-3 bg-light border-secondary positive tweepy hidden">
+                                <div class="card-header bg-success text-white">
+                                    <h5>{{ ele[0] }}</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <p class="card-text lead">{{ ele[3] }}</p>
+                                </div>
+                                <div class="card-footer">
+                                    <p class="card-text">Sent on: {{ date }}</p>
+                                </div>
+                            </div>
+                        {% elif ele[5] == 'negative' %}
+                            <div class="card my-3 bg-light border-secondary negative tweepy hidden">
+                                <div class="card-header bg-danger text-white">
+                                    <h5>{{ ele[0] }}</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <p class="card-text lead">{{ ele[3] }}</p>
+                                </div>
+                                <div class="card-footer">
+                                    <p class="card-text">Sent on: {{ date }}</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="card my-3 bg-light border-secondary neutral tweepy hidden">
+                                <div class="card-header bg-warning text-white">
+                                    <h5>{{ ele[0] }}</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <p class="card-text lead">{{ ele[3] }}</p>
+                                </div>
+                                <div class="card-footer">
+                                    <p class="card-text">Sent on: {{ date }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>No Tweets Found for the search query!!</h5>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Error getting tweets from database!!!</h5>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="hidden">
+            <table id="mytable">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Tweet</th>
+                    <th>Sentiment</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for tweet in tweets %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ tweet[3] }}</td>
+                        <td>{{ tweet[5] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- footer -->
+    {% include "footer.html" %}
+</div>
+
+<script>
+    function percent(val, total) {
+        return ((val / total)*100).toFixed(1)
+    }
+
+    let npos = {{ counts['pos'] }}
+    let nneg = {{ counts['neg'] }}
+    let nneu = {{ counts['neu'] }}
+    let total = {{ counts['total'] }}
+
+    let pie_chart = document.getElementById('pie_chart').getContext('2d');
+    let bar_chart = document.getElementById('bar_chart').getContext('2d');
+
+    let piechart = new Chart(pie_chart, {
+        type: 'polarArea', 
+        data: {
+            labels: ['positive (%)', 'negative (%)', 'neutral (%)'],
+            datasets: [{
+                label: 'Sentiment',
+                data: [percent(npos, total), percent(nneg, total), percent(nneu, total)],
+                backgroundColor: [
+                'rgba(63, 167, 3, 0.5)',
+                'rgba(197, 7, 7, 0.5)',
+                'rgba(253, 240, 0, 0.5)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Sentiment Analysis',
+                    font: {
+                        weight: 'bold',
+                        size: 20,
+                        color: 'black'
+                    }
+                }
+            }
+        },
+    });
+
+    let barchart = new Chart(bar_chart, {
+        type: 'bar', 
+        data: {
+            labels: ['positive', 'negative', 'neutral'],
+            datasets: [{
+                data: [npos, nneg, nneu],
+                backgroundColor: [
+                'rgba(63, 167, 3, 0.5)',
+                'rgba(197, 7, 7, 0.5)',
+                'rgba(253, 240, 0, 0.5)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Sentiment Analysis',
+                    font: {
+                        weight: 'bold',
+                        size: 20,
+                        color: 'black'
+                    }
+                },
+                legend: {display: false}
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'No. of tweets',
+                        font: {
+                            color: 'black',
+                            size: 20
+                        }
+                    }
+                }
+            }
+        },
+    });
+</script>
+{% endblock %}
