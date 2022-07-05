@@ -5,13 +5,11 @@
 - tweets query search 
 - polarity graphs 
 
-Check out the demo on https://vaccinetweetsentiment.pythonanywhere.com/
-
 
 ## Run the app 
 
 ```
-git clone https://github.com/lakhaniaayush/sentiment_analysis.git
+git clone https://github.com/Phile-97/twitter_sentiment_analysis.git
 cd sentiment_analysis
 python run.py
 ```
